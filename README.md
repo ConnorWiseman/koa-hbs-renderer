@@ -7,8 +7,39 @@
 
 A Handlebars template renderer for Koa2.
 
+
 ## Installation
 
 ```shell
 npm install --save koa-hbs-renderer
+```
+
+
+## Usage
+### views/template.hbs
+```html
+<p>This is a template. Isn't that {{adjective}}?</p>
+```
+
+### index.js
+```javascript
+const Koa      = require('koa');
+const path     = require('path');
+const renderer = require('koa-hbs-renderer');
+
+let app = new Koa();
+
+app.use(renderer({
+  paths: {
+    views: path.join(__dirname, 'views')
+  }
+}));
+
+app.use(async (ctx, next) => {
+  await ctx.render('template', {
+    adjective: 'useful'
+  });
+});
+
+app.listen(3000);
 ```

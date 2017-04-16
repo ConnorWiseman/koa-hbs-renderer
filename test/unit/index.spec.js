@@ -31,17 +31,27 @@ const TEMPLATE_NAME      = 'testing';
 const TEMPLATE_TYPE      = 'view';
 
 // Require module to test.
-const Renderer = proxyquire('../../index.js', {
+const koaRenderer = proxyquire('../../index.js', {
   'fs':   fsStub,
   'path': pathStub
 });
 
 // Describe tests.
+describe('exports', function() {
+  it('should return an AsyncFunction', function() {
+    koaRenderer({
+      paths: {
+        views: TEMPLATE_DIRECTORY
+      }
+    }).should.be.an('AsyncFunction');
+  });
+});
+
 describe('Renderer', function() {
   let renderer;
 
   beforeEach(function() {
-    renderer = new Renderer;
+    renderer = new koaRenderer.Renderer;
 
     fsStub.createReadStream = sinon.stub().callsFake(function(file, options) {
       let stream = new Readable;

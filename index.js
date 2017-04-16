@@ -16,9 +16,20 @@ const emptyLayout = Handlebars.compile('{{{body}}}');
 
 
 /**
+ * @param  {Object} options
+ * @return {AsyncFunction}
+ */
+module.exports = function(options) {
+  let renderer = new Renderer;
+
+  return renderer.middleware(options);
+};
+
+
+/**
  * @class
  */
-let Renderer = module.exports = class Renderer {
+let Renderer = module.exports.Renderer = class Renderer {
 
 
   /**
