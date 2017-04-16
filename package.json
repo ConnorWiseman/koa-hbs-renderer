@@ -45,7 +45,9 @@
     "cross-env": "^4.0.0",
     "mocha": "^3.2.0",
     "nyc": "^10.2.0",
+    "proxyquire": "^1.7.11",
     "sinon": "^2.1.0",
-    "sinon-chai": "^2.9.0"
+    "sinon-chai": "^2.9.0",
+    "stream": "0.0.2"
   }
 }
