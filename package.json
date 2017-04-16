@@ -1,0 +1,51 @@
+{
+  "name": "koa-hbs-renderer",
+  "version": "0.0.1",
+  "description": "A Handlebars template renderer for Koa2.",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "LICENSE",
+    "README.md",
+    "test/"
+  ],
+  "scripts": {
+    "test": "cross-env NODE_ENV=test nyc mocha ./test/unit ./test/integration",
+    "test:integration": "cross-env NODE_ENV=test nyc mocha ./test/integration",
+    "test:unit": "cross-env NODE_ENV=test nyc mocha ./test/unit",
+    "report-coverage": "codecov"
+  },
+  "engines": {
+    "node": ">=7.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ConnorWiseman/koa-hbs-renderer.git"
+  },
+  "keywords": [
+    "koa2",
+    "handlebars"
+  ],
+  "author": "Connor Wiseman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ConnorWiseman/koa-hbs-renderer/issues"
+  },
+  "homepage": "https://github.com/ConnorWiseman/koa-hbs-renderer#readme",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "fs": "0.0.1-security",
+    "handlebars": "^4.0.6",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "codecov": "^2.1.0",
+    "cross-env": "^4.0.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.2.0",
+    "sinon": "^2.1.0",
+    "sinon-chai": "^2.9.0"
+  }
+}
