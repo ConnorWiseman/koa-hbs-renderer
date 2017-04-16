@@ -7,4 +7,8 @@
 
 A Handlebars template renderer for Koa2.
 
-## Usage
+## Installation
+
+```shell
+npm install --save koa-hbs-renderer
+```
