@@ -1,0 +1,4 @@
+{
+  "exclude": [ "coverage", "node_modules", "test" ],
+  "reporter": [ "lcov", "text" ]
+}
