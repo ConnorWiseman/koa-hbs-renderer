@@ -17,6 +17,18 @@ chai.use(sinonChai);
 
 // Define local constants.
 const eol = (process.platform === 'win32' ? '\r\n' : '\n');
+const TEMPLATE_STRING = `<!DOCTYPE html>${eol}\
+<html lang="en-US">${eol}\
+    <head>${eol}\
+        <title>Title!</title>${eol}\
+        <meta charset="utf-8" />${eol}\
+    </head>${eol}\
+${eol}\
+    <body>${eol}\
+        <p>This is a template. Isn't that useful?</p>\n\n<p>This is a partial!</p>${eol}\
+${eol}\
+    </body>${eol}\
+</html>${eol}`;
 
 // Require module to test.
 const renderer = require('../../index.js');
@@ -51,26 +63,16 @@ describe('Renderer', function() {
   });
 
   it('should render the specified template', function(done) {
-    request.get('/').expect(200).then(result => {
-      result.text.should.equal(`<!DOCTYPE html>${eol}\
-<html lang="en-US">${eol}\
-    <head>${eol}\
-        <title>Title!</title>${eol}\
-        <meta charset="utf-8" />${eol}\
-    </head>${eol}\
-${eol}\
-    <body>${eol}\
-        <p>This is a template. Isn't that useful?</p>\n\n<p>This is a partial!</p>${eol}\
-${eol}\
-    </body>${eol}\
-</html>${eol}`);
-      done();
-    });
+    request.get('/').expect(200).then(function(result) {
+      result.text.should.equal(TEMPLATE_STRING);
+    }).should.be.fulfilled.notify(done);
   });
 
   it('should render the specified template from the cache', function(done) {
-    request.get('/').expect(200, function() {
-      request.get('/').expect(200, done);
-    });
+    request.get('/').expect(200).then(function(result) {
+      return request.get('/').expect(200);
+    }).then(function(result) {
+      result.text.should.equal(TEMPLATE_STRING);
+    }).should.be.fulfilled.notify(done);
   });
 });
