@@ -7,7 +7,7 @@
 const chai           = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const path           = require('path');
-const proxyquire     = require('proxyquire')
+const proxyquire     = require('proxyquire').noPreserveCache();
 const sinon          = require('sinon');
 const sinonChai      = require('sinon-chai');
 const stream         = require('stream');
@@ -84,6 +84,11 @@ describe('Renderer', function() {
     pathStub.normalize = sinon.stub().callsFake(function() {
       return path.normalize.apply(path, arguments);
     });
+  });
+
+  after(function() {
+    delete fsStub.createReadStream;
+    delete fsStub.readdir;
   });
 
   describe('constructor', function() {
