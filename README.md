@@ -43,3 +43,25 @@ app.use(async (ctx, next) => {
 
 app.listen(3000);
 ```
+
+## Options
+### defaultLayout
+The name of the layout to use by default if `paths.layouts` is defined. Defaults to `default`.
+
+### expires
+The length of time, in seconds, to keep compiled Handlebars templates in the in-memory cache. Defaults to `60`.
+
+### extension
+The file extension used by template files. Defaults to `hbs`.
+
+### paths
+An object literal of specified file paths. _Required._
+
+#### views
+The path to a directory of view templates. _Required._
+
+#### partials
+The path to a directory of partial templates. If specified, all templates in the partials directory will be compiled and cached together. _Optional._
+
+#### layouts
+The path to a directory of layout templates. _Optional._
