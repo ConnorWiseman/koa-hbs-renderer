@@ -6,8 +6,7 @@
   "files": [
     "index.js",
     "LICENSE",
-    "README.md",
-    "test/"
+    "README.md"
   ],
   "scripts": {
     "test": "cross-env NODE_ENV=test nyc mocha ./test/unit ./test/integration",
