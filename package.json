@@ -33,19 +33,19 @@
   "homepage": "https://github.com/ConnorWiseman/koa-hbs-renderer#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
-    "handlebars": "^4.0.6"
+    "handlebars": "^4.0.10"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
-    "codecov": "^2.1.0",
-    "cross-env": "^4.0.0",
-    "koa": "^2.2.0",
-    "mocha": "^3.2.0",
-    "nyc": "^10.2.0",
-    "proxyquire": "^1.7.11",
-    "sinon": "^2.1.0",
-    "sinon-chai": "^2.9.0",
+    "chai": "^4.0.2",
+    "chai-as-promised": "^7.0.0",
+    "codecov": "^2.2.0",
+    "cross-env": "^5.0.1",
+    "koa": "^2.3.0",
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.2",
+    "proxyquire": "^1.8.0",
+    "sinon": "^2.3.5",
+    "sinon-chai": "^2.11.0",
     "stream": "0.0.2",
     "supertest": "^3.0.0"
   }

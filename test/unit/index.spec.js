@@ -38,12 +38,12 @@ const koaRenderer = proxyquire('../../index.js', {
 
 // Describe tests.
 describe('exports', function() {
-  it('should return an AsyncFunction', function() {
+  it('should return a Function', function() {
     koaRenderer({
       paths: {
         views: TEMPLATE_DIRECTORY
       }
-    }).should.be.an('AsyncFunction');
+    }).should.be.a('Function');
   });
 });
 
@@ -254,10 +254,10 @@ describe('Renderer', function() {
   });
 
   describe('#middleware', function() {
-    it('should return an asynchronous function', function() {
+    it('should return a function', function() {
       renderer.middleware({
         paths: { views: TEMPLATE_DIRECTORY }
-      }).should.be.an('AsyncFunction');
+      }).should.be.an('Function');
     });
 
     it('should throw ReferenceError if option.paths is undefined', function() {
@@ -288,7 +288,7 @@ describe('Renderer', function() {
         let ctx = {};
         fn(ctx, next);
         ctx.render.should.exist;
-        ctx.render.should.be.an('AsyncFunction');
+        ctx.render.should.be.a('Function');
       });
 
       it('should await next', function() {
