@@ -20,7 +20,7 @@ const emptyLayout = Handlebars.compile('{{{body}}}');
  * @return {AsyncFunction}
  */
 module.exports = function(options) {
-  let renderer = new Renderer;
+  let renderer = new Renderer(options);
 
   return renderer.middleware(options);
 };
@@ -31,11 +31,24 @@ module.exports = function(options) {
  */
 let Renderer = module.exports.Renderer = class Renderer {
 
+  _loadHelpers(helperDir) {
+    fs.readdir(helperDir, (err, list) => {
+      if (err) {
+        throw err;
+      }
+      list.forEach(helper => {
+        const helperPath = path.join(helperDir, helper);
+        const name = path.parse(helper).name;
+
+        this.hbs.registerHelper(name, require(helperPath));
+      });
+    });
+  }
 
   /**
    * @constructor
    */
-  constructor() {
+  constructor({paths}) {
     this._cache = {
       layout:  {},
       partial: {},
@@ -43,6 +56,9 @@ let Renderer = module.exports.Renderer = class Renderer {
     };
 
     this.hbs = Handlebars.create();
+    if (paths.helpers) {
+      this._loadHelpers(paths.helpers);
+    }
   }
 
 
@@ -114,9 +130,7 @@ let Renderer = module.exports.Renderer = class Renderer {
         }
 
         for (let i = 0; i < list.length; i++) {
-          let parts = list[i].split('.'),
-              file  = parts[0],
-              ext   = parts[1];
+          let [file, ext] = list[i].split('.');
 
           if (ext === extension) {
             files.push(this._loadFile(directory, file, extension, type, expires));
@@ -135,7 +149,6 @@ let Renderer = module.exports.Renderer = class Renderer {
       return map;
     });
   }
-
 
   /**
    * @param  {Function} view

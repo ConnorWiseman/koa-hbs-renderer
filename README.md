@@ -63,5 +63,8 @@ The path to a directory of view templates. _Required._
 #### partials
 The path to a directory of partial templates. If specified, all templates in the partials directory will be compiled and cached together. _Optional._
 
+#### helpers
+The path to your main helper directory. Note: Helper js should all be in this dir _Optional._
+
 #### layouts
 The path to a directory of layout templates. _Optional._
