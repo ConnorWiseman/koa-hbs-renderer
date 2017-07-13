@@ -51,7 +51,11 @@ describe('Renderer', function() {
   let renderer;
 
   beforeEach(function() {
-    renderer = new koaRenderer.Renderer;
+    renderer = new koaRenderer.Renderer({
+      paths: {
+        views: ''
+      }
+    });
 
     fsStub.createReadStream = sinon.stub().callsFake(function(file, options) {
       let stream = new Readable;
@@ -99,6 +103,12 @@ describe('Renderer', function() {
 
     it('should create a new Handlebars environment', function() {
       renderer.hbs.constructor.name.should.equal('HandlebarsEnvironment');
+    });
+
+    it('should throw TypeError if option.paths is undefined', function() {
+      (function() {
+        new koaRenderer.Renderer;
+      }).should.throw(TypeError);
     });
   });
 
@@ -260,17 +270,12 @@ describe('Renderer', function() {
       }).should.be.an('Function');
     });
 
-    it('should throw ReferenceError if option.paths is undefined', function() {
-      (function() {
-        renderer.middleware();
-      }).should.throw(ReferenceError);
-    });
-
     it('should throw ReferenceError if option.paths.views is undefined', function() {
       (function() {
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: {}
         });
+        renderer.middleware();
       }).should.throw(ReferenceError);
     });
 
@@ -305,10 +310,12 @@ describe('Renderer', function() {
       });
 
       it('should call this._loadFile to load the specified view', function(done) {
-        sinon.spy(renderer, '_loadFile');
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: { views: TEMPLATE_DIRECTORY }
-        })(ctx, function() {
+        });
+
+        sinon.spy(renderer, '_loadFile');
+        renderer.middleware()(ctx, function() {
           Promise.resolve(ctx.render(TEMPLATE_NAME)).then(() => {
             renderer._loadFile.should.have.been.calledOnce;
             renderer._loadFile.restore();
@@ -317,14 +324,15 @@ describe('Renderer', function() {
       });
 
       it('should call this._loadFile to load the specified layout if options.paths.layouts is specified', function(done) {
-        sinon.spy(renderer, '_loadFile');
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: {
             views: TEMPLATE_DIRECTORY,
             layouts: TEMPLATE_DIRECTORY
           },
           defaultLayout: 'testing'
-        })(ctx, function() {
+        });
+        sinon.spy(renderer, '_loadFile');
+        renderer.middleware()(ctx, function() {
           Promise.resolve(ctx.render(TEMPLATE_NAME)).then(() => {
             renderer._loadFile.should.have.been.calledTwice;
             renderer._loadFile.restore();
@@ -333,14 +341,15 @@ describe('Renderer', function() {
       });
 
       it('should override options.defaultLayout if context.layout is specified', function(done) {
-        sinon.spy(renderer, '_loadFile');
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: {
             views: TEMPLATE_DIRECTORY,
             layouts: TEMPLATE_DIRECTORY
           },
           defaultLayout: 'bad'
-        })(ctx, function() {
+        });
+        sinon.spy(renderer, '_loadFile');
+        renderer.middleware()(ctx, function() {
           Promise.resolve(ctx.render(TEMPLATE_NAME, {
             layout: TEMPLATE_NAME
           })).then(() => {
@@ -351,13 +360,14 @@ describe('Renderer', function() {
       });
 
       it('should call this._loadFiles to load the specified partials if options.paths.partials is specified', function(done) {
-        sinon.spy(renderer, '_loadFiles');
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: {
             views: TEMPLATE_DIRECTORY,
             partials: TEMPLATE_DIRECTORY
           }
-        })(ctx, function() {
+        });
+        sinon.spy(renderer, '_loadFiles');
+        renderer.middleware()(ctx, function() {
           Promise.resolve(ctx.render(TEMPLATE_NAME)).then(() => {
             renderer._loadFiles.should.have.been.calledOnce;
             renderer._loadFiles.restore();
@@ -366,9 +376,10 @@ describe('Renderer', function() {
       });
 
       it('should set ctx.type to text/html; charset=utf-8', function(done) {
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: { views: TEMPLATE_DIRECTORY }
-        })(ctx, function() {
+        });
+        renderer.middleware()(ctx, function() {
           Promise.resolve(ctx.render(TEMPLATE_NAME)).then(() => {
             ctx.type.should.equal('text/html; charset=utf-8');
           }).should.be.fulfilled.notify(done);
@@ -376,9 +387,10 @@ describe('Renderer', function() {
       });
 
       it('should set ctx.body to the rendered template', function(done) {
-        renderer.middleware({
+        renderer = new koaRenderer.Renderer({
           paths: { views: TEMPLATE_DIRECTORY }
-        })(ctx, function() {
+        });
+        renderer.middleware()(ctx, function() {
           Promise.resolve(ctx.render(TEMPLATE_NAME, {
             name: 'test'
           })).then(() => {

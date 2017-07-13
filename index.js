@@ -22,7 +22,7 @@ const emptyLayout = Handlebars.compile('{{{body}}}');
 module.exports = function(options) {
   let renderer = new Renderer(options);
 
-  return renderer.middleware(options);
+  return renderer.middleware();
 };
 
 
@@ -31,33 +31,30 @@ module.exports = function(options) {
  */
 let Renderer = module.exports.Renderer = class Renderer {
 
-  _loadHelpers(helperDir) {
-    fs.readdir(helperDir, (err, list) => {
-      if (err) {
-        throw err;
-      }
-      list.forEach(helper => {
-        const helperPath = path.join(helperDir, helper);
-        const name = path.parse(helper).name;
-
-        this.hbs.registerHelper(name, require(helperPath));
-      });
-    });
-  }
 
   /**
    * @constructor
    */
-  constructor({paths}) {
+  constructor(options) {
     this._cache = {
       layout:  {},
       partial: {},
       view:    {}
     };
 
+    this._options = options;
+
     this.hbs = Handlebars.create();
-    if (paths.helpers) {
-      this._loadHelpers(paths.helpers);
+
+    if (this._options.paths.helpers !== undefined) {
+      let helpers = fs.readdirSync(this._options.paths.helpers);
+
+      for (let helper of helpers) {
+        const helperPath = path.join(this._options.paths.helpers, helper);
+        const name       = path.parse(helper).name;
+
+        this.hbs.registerHelper(name, require(helperPath));
+      }
     }
   }
 
@@ -150,6 +147,7 @@ let Renderer = module.exports.Renderer = class Renderer {
     });
   }
 
+
   /**
    * @param  {Function} view
    * @param  {Function} layout
@@ -166,17 +164,16 @@ let Renderer = module.exports.Renderer = class Renderer {
 
 
   /**
-   * @param  {Object} options
    * @return {AsyncFunction}
    * @throws {ReferenceError}
    * @public
    */
-  middleware(options) {
+  middleware() {
     let opts = Object.assign({
       defaultLayout: 'default',
       expires:       60,
       extension:     'hbs',
-    }, options);
+    }, this._options);
 
     if (opts.paths === undefined) {
       throw new ReferenceError('options.paths is undefined');
@@ -185,6 +182,7 @@ let Renderer = module.exports.Renderer = class Renderer {
     }
 
     opts.extension = opts.extension.replace(/[^a-z-]/, '');
+
 
     /**
      * @param {Object}   ctx
