@@ -129,6 +129,13 @@ describe('createRendererMiddleware', function() {
     Handlebars.create.restore();
   });
 
+  it('should properly format specified `extension`', function() {
+    renderer({
+      paths: { views: TEMPLATE_DIRECTORY },
+      extension: 'hbs'
+    });
+  });
+
   it('should load helper functions is `options.paths.helpers` is defined', function() {
     renderer({
       paths: {

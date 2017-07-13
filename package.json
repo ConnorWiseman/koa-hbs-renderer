@@ -25,7 +25,17 @@
     "koa2",
     "handlebars"
   ],
-  "author": "Connor Wiseman, Dustin Hershman",
+  "author": "Connor Wiseman",
+  "contributors": [
+    {
+      "name": "Dustin Hershman",
+      "url": "https://github.com/dhershman1"
+    },
+    {
+      "name": "Connor Wiseman",
+      "url": "https://github.com/ConnorWiseman"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ConnorWiseman/koa-hbs-renderer/issues"
@@ -42,7 +52,6 @@
     "cross-env": "^5.0.1",
     "koa": "^2.3.0",
     "mocha": "^3.4.2",
-    "mock-require": "^2.0.2",
     "nyc": "^11.0.3",
     "proxyquire": "^1.8.0",
     "sinon": "^2.3.8",

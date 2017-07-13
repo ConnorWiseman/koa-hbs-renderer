@@ -30,7 +30,7 @@ module.exports = function createRendererMiddleware(options) {
     throw new ReferenceError('options.paths.views is required');
   }
 
-  opts.extension = opts.extension.replace(/[^a-z-.]/, '');
+  opts.extension = `.${opts.extension.replace(/[^a-z-]/, '')}`;
 
   let cache = {
     layout:  {},
