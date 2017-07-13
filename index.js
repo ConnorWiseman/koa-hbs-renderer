@@ -47,11 +47,9 @@ module.exports = function createRendererMiddleware(options) {
       const helperPath    = path.join(opts.paths.helpers, helper);
       const { name, ext } = path.parse(helper);
 
-      if (ext !== '.js') {
-        continue;
+      if (ext === '.js') {
+        hbs.registerHelper(name, require(helperPath));
       }
-
-      hbs.registerHelper(name, require(helperPath));
     }
   }
 
