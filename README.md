@@ -52,7 +52,7 @@ The name of the layout to use by default if `paths.layouts` is defined. Defaults
 The length of time, in seconds, to keep compiled Handlebars templates in the in-memory cache. Defaults to `60`.
 
 ### extension
-The file extension used by template files. Defaults to `hbs`.
+The file extension used by template files. Defaults to `.hbs`.
 
 ### paths
 An object literal of specified file paths. _Required._
