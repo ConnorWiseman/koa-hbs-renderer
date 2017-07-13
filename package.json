@@ -1,6 +1,6 @@
 {
   "name": "koa-hbs-renderer",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "A Handlebars template renderer for Koa2.",
   "main": "index.js",
   "files": [
