@@ -25,7 +25,7 @@
     "koa2",
     "handlebars"
   ],
-  "author": "Connor Wiseman",
+  "author": "Connor Wiseman, Dustin Hershman",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ConnorWiseman/koa-hbs-renderer/issues"
@@ -36,15 +36,16 @@
     "handlebars": "^4.0.10"
   },
   "devDependencies": {
-    "chai": "^4.0.2",
-    "chai-as-promised": "^7.0.0",
+    "chai": "^4.1.0",
+    "chai-as-promised": "^7.1.1",
     "codecov": "^2.2.0",
     "cross-env": "^5.0.1",
     "koa": "^2.3.0",
     "mocha": "^3.4.2",
-    "nyc": "^11.0.2",
+    "mock-require": "^2.0.2",
+    "nyc": "^11.0.3",
     "proxyquire": "^1.8.0",
-    "sinon": "^2.3.5",
+    "sinon": "^2.3.8",
     "sinon-chai": "^2.11.0",
     "stream": "0.0.2",
     "supertest": "^3.0.0"

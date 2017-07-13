@@ -3,97 +3,91 @@
  */
 'use strict';
 
-// Required Node.js modules.
+
 const fs         = require('fs');
 const Handlebars = require('handlebars');
 const path       = require('path');
+const Promise    = require('bluebird');
 
-// Swap Bluebird for the native Promise object.
-const Promise = require('bluebird');
 
-// Declare local constants.
 const emptyLayout = Handlebars.compile('{{{body}}}');
 
 
 /**
- * @param  {Object} options
+ * @param  {Object} [options]
  * @return {AsyncFunction}
  */
-module.exports = function(options) {
-  let renderer = new Renderer(options);
+module.exports = function createRendererMiddleware(options) {
+  let opts = Object.assign({
+    defaultLayout: 'default',
+    expires:       60,
+    extension:     '.hbs',
+  }, options);
 
-  return renderer.middleware();
-};
+  if (!opts.paths) {
+    throw new ReferenceError('options.paths is required');
+  } else if (!opts.paths.views) {
+    throw new ReferenceError('options.paths.views is required');
+  }
 
+  opts.extension = opts.extension.replace(/[^a-z-.]/, '');
 
-/**
- * @class
- */
-let Renderer = module.exports.Renderer = class Renderer {
+  let cache = {
+    layout:  {},
+    partial: {},
+    view:    {}
+  };
 
+  let hbs = Handlebars.create();
 
-  /**
-   * @constructor
-   */
-  constructor(options) {
-    this._cache = {
-      layout:  {},
-      partial: {},
-      view:    {}
-    };
+  if (opts.paths.helpers !== undefined) {
+    let helpers = fs.readdirSync(opts.paths.helpers);
 
-    this._options = options;
+    for (let helper of helpers) {
+      const helperPath    = path.join(opts.paths.helpers, helper);
+      const { name, ext } = path.parse(helper);
 
-    this.hbs = Handlebars.create();
-
-    if (this._options.paths.helpers !== undefined) {
-      let helpers = fs.readdirSync(this._options.paths.helpers);
-
-      for (let helper of helpers) {
-        const helperPath = path.join(this._options.paths.helpers, helper);
-        const name       = path.parse(helper).name;
-
-        this.hbs.registerHelper(name, require(helperPath));
+      if (ext !== '.js') {
+        continue;
       }
+
+      hbs.registerHelper(name, require(helperPath));
     }
   }
 
 
   /**
+   * Compiles the specified template with the local Handlebars environment.
    * @param  {String} type
    * @param  {String} name
    * @param  {String} contents
    * @return {Function}
    * @private
    */
-  _compileTemplate(type, name, contents) {
-    this._cache[type][name] = this.hbs.compile(contents);
-
-    this._cache[type][name]._name   = name;
-    this._cache[type][name]._cached = Math.floor(Date.now() / 1000);
-
-    return this._cache[type][name];
-  }
+  function compileTemplate(type, name, contents) {
+    cache[type][name] = hbs.compile(contents);
+    cache[type][name]._name   = name;
+    cache[type][name]._cached = Math.floor(Date.now() / 1000);
+    return cache[type][name];
+  };
 
 
   /**
    * @param  {String} directory The directory to retrieve the file from.
    * @param  {String} filename  The name of the file to retrieve.
-   * @param  {String} extension A file extension without the leading period.
    * @param  {String} type      One of either 'layout', 'partial', or 'view'.
-   * @param  {Number} expires   The maximum time in seconds to cache templates.
    * @return {Promise}
    * @private
    */
-  _loadFile(directory, filename, extension, type, expires) {
-    let file = path.normalize(path.join(directory, `${filename}.${extension}`)),
+  function loadFile(directory, filename, type) {
+    let file = path.join(directory, `${filename}${opts.extension}`),
         now  = Math.floor(Date.now() / 1000),
         raw;
 
-    return new Promise((resolve, reject) => {
-      if (this._cache[type][filename] !== undefined &&
-          this._cache[type][filename]._cached + expires > now) {
-        return resolve(this._cache[type][filename]);
+    return new Promise(function(resolve, reject) {
+      if (cache[type][filename] !== undefined &&
+          cache[type][filename]._cached + opts.expires > now) {
+        return resolve(cache[type][filename]);
       }
 
       raw = '';
@@ -103,49 +97,44 @@ let Renderer = module.exports.Renderer = class Renderer {
       }).on('error', error => {
         reject(error);
       }).on('end', () => {
-        resolve(this._compileTemplate(type, filename, raw));
+        resolve(compileTemplate(type, filename, raw));
       });
     });
-  }
+  };
 
 
   /**
    * @param  {String} directory The directory to retrieve the files from.
-   * @param  {String} extension A file extension without the leading period.
    * @param  {String} type      One of either 'layout', 'partial', or 'view'.
-   * @param  {Number} expires   The maximum time in seconds to cache templates.
    * @return {Promise}
    * @private
    */
-  _loadFiles(directory, extension, type, expires) {
-    return new Promise((resolve, reject) => {
+  function loadFiles(directory, type) {
+    return new Promise(function(resolve, reject) {
       let files = [];
 
-      fs.readdir(directory, (error, list) => {
+      fs.readdir(directory, function(error, list) {
         if (error) {
           return reject(error);
         }
 
-        for (let i = 0; i < list.length; i++) {
-          let [file, ext] = list[i].split('.');
+        for (let file of list) {
+          const { name, ext } = path.parse(file);
 
-          if (ext === extension) {
-            files.push(this._loadFile(directory, file, extension, type, expires));
+          if (ext === opts.extension) {
+            files.push(loadFile(directory, name, type));
           }
         }
 
         resolve(Promise.all(files));
       });
-    }).then(files => {
-      let map = {};
-
-      for (let i = 0; i < files.length; i++) {
-        map[files[i]._name] = files[i];
-      }
-
-      return map;
+    }).then(function(files) {
+      return files.reduce(function(map, current) {
+        map[current._name] = current;
+        return map;
+      }, {});
     });
-  }
+  };
 
 
   /**
@@ -156,65 +145,44 @@ let Renderer = module.exports.Renderer = class Renderer {
    * @return {String}
    * @private
    */
-  _render(view, layout, context, options) {
+  function renderView(view, layout, context, options) {
     return layout(Object.assign({}, context, {
       body: view(context, options)
     }), options);
-  }
+  };
 
 
   /**
-   * @return {AsyncFunction}
-   * @throws {ReferenceError}
-   * @public
+   * @param {Object}   ctx
+   * @param {Function} next
    */
-  middleware() {
-    let opts = Object.assign({
-      defaultLayout: 'default',
-      expires:       60,
-      extension:     'hbs',
-    }, this._options);
-
-    if (opts.paths === undefined) {
-      throw new ReferenceError('options.paths is undefined');
-    } else if (opts.paths.views === undefined) {
-      throw new ReferenceError('options.paths.views is required');
-    }
-
-    opts.extension = opts.extension.replace(/[^a-z-]/, '');
+  return async function rendererMiddleware(ctx, next) {
 
 
     /**
-     * @param {Object}   ctx
-     * @param {Function} next
+     * @param {String} view
+     * @param {Object} [locals]
      */
-    return async (ctx, next) => {
+    ctx.render = async function render(view, locals) {
+      let context = Object.assign({}, ctx.state, locals),
+          options = {},
+          viewTemplate   = await loadFile(opts.paths.views, view, 'view'),
+          layoutTemplate = emptyLayout;
 
-      /**
-       * @param {String} view
-       * @param {Object} [locals]
-       */
-      ctx.render = async (view, locals) => {
-        let context = Object.assign({}, ctx.state, locals),
-            options = {},
-            viewTemplate   = await this._loadFile(opts.paths.views, view, opts.extension, 'view', opts.expires),
-            layoutTemplate = emptyLayout;
+      if (opts.paths.layouts !== undefined) {
+        layoutTemplate = await loadFile(opts.paths.layouts, context.layout || opts.defaultLayout, 'layout');
+      }
 
-        if (opts.paths.layouts !== undefined) {
-          layoutTemplate = await this._loadFile(opts.paths.layouts, context.layout || opts.defaultLayout, opts.extension, 'layout', opts.expires);
-        }
+      if (opts.paths.partials !== undefined) {
+        options = Object.assign(options, {
+          partials: await loadFiles(opts.paths.partials, 'partial')
+        });
+      }
 
-        if (opts.paths.partials !== undefined) {
-          options = Object.assign(options, {
-            partials: await this._loadFiles(opts.paths.partials, opts.extension, 'partial', opts.expires)
-          });
-        }
+      ctx.type = 'text/html; charset=utf-8';
+      ctx.body = renderView(viewTemplate, layoutTemplate, context, options);
+    };
 
-        ctx.type = 'text/html; charset=utf-8';
-        ctx.body = this._render(viewTemplate, layoutTemplate, context, options);
-      };
-
-      await next();
-    }
-  }
+    await next();
+  };
 };

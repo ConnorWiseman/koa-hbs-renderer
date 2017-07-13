@@ -3,36 +3,39 @@
  */
 'use strict';
 
-// Require Node modules and perform setup.
+
 const chai           = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const Koa            = require('koa');
 const path           = require('path');
 const supertest      = require('supertest');
+const should         = chai.should();
 const sinon          = require('sinon');
 const sinonChai      = require('sinon-chai');
-chai.should();
+
+
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-// Define local constants.
+
 const TEMPLATE_STRING = `<!DOCTYPE html><html lang="en-US"><head><title>Title!</title><meta charset="utf-8" /></head><body><p>This is a template. Isn't that useful?</p><p>This is a partial!</p></body></html>`;
 
-// Require module to test.
+
 const renderer = require('../../index.js');
 
-// Describe tests.
+
 describe('Renderer', function() {
-  let app, request;
+  var app, request;
 
   before(function(done) {
     app = new Koa;
 
     app.use(renderer({
       paths: {
-        views: path.join(__dirname, 'views'),
-        partials: path.join(__dirname, 'views/partials'),
-        layouts: path.join(__dirname, 'views/layouts')
+        views:    path.join(__dirname, '../views'),
+        partials: path.join(__dirname, '../views/partials'),
+        layouts:  path.join(__dirname, '../views/layouts'),
+        helpers:  path.join(__dirname, '../helpers')
       }
     }));
 

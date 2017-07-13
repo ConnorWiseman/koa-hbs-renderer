@@ -64,7 +64,7 @@ The path to a directory of view templates. _Required._
 The path to a directory of partial templates. If specified, all templates in the partials directory will be compiled and cached together. _Optional._
 
 #### helpers
-The path to your main helper directory. Note: Helper js should all be in this dir _Optional._
+The path to a directory of helper functions contained in JavaScript files. If specified, all functions in the helpers directory will be loaded and  made available to the Handlebars environment for rendering. _Optional._
 
 #### layouts
 The path to a directory of layout templates. _Optional._
