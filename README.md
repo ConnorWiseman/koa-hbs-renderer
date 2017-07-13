@@ -45,6 +45,23 @@ app.listen(3000);
 ```
 
 ## Options
+```javascript
+let options = {
+  defaultLayout: 'default',
+  expires:       60,
+  extension:     '.hbs',
+  paths: {
+    views:    path.join(__dirname, 'views'),
+    partials: path.join(__dirname, 'partials'),
+    layouts:  path.join(__dirname, 'layouts'),
+    helpers:  path.join(__dirname, 'helpers')
+  }
+}
+
+app.use(renderer(options));
+```
+
+
 ### defaultLayout
 The name of the layout to use by default if `paths.layouts` is defined. Defaults to `default`.
 
@@ -63,8 +80,8 @@ The path to a directory of view templates. _Required._
 #### partials
 The path to a directory of partial templates. If specified, all templates in the partials directory will be compiled and cached together. _Optional._
 
-#### helpers
-The path to a directory of helper functions contained in JavaScript files. If specified, all functions in the helpers directory will be loaded and made available to the Handlebars environment for rendering. _Optional._
-
 #### layouts
 The path to a directory of layout templates. _Optional._
+
+#### helpers
+The path to a directory of helper functions contained in JavaScript files. If specified, all functions in the helpers directory will be loaded and made available to the Handlebars environment for rendering. _Optional._

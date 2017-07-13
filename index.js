@@ -40,7 +40,7 @@ module.exports = function createRendererMiddleware(options) {
 
   let hbs = Handlebars.create();
 
-  if (opts.paths.helpers !== undefined) {
+  if (opts.paths.helpers) {
     let helpers = fs.readdirSync(opts.paths.helpers);
 
     for (let helper of helpers) {
@@ -83,7 +83,7 @@ module.exports = function createRendererMiddleware(options) {
         raw;
 
     return new Promise(function(resolve, reject) {
-      if (cache[type][filename] !== undefined &&
+      if (cache[type][filename] &&
           cache[type][filename]._cached + opts.expires > now) {
         return resolve(cache[type][filename]);
       }
@@ -160,6 +160,7 @@ module.exports = function createRendererMiddleware(options) {
     /**
      * @param {String} view
      * @param {Object} [locals]
+     * @public
      */
     ctx.render = async function render(view, locals) {
       let context = Object.assign({}, ctx.state, locals),
@@ -167,11 +168,11 @@ module.exports = function createRendererMiddleware(options) {
           viewTemplate   = await loadFile(opts.paths.views, view, 'view'),
           layoutTemplate = emptyLayout;
 
-      if (opts.paths.layouts !== undefined) {
+      if (opts.paths.layouts) {
         layoutTemplate = await loadFile(opts.paths.layouts, context.layout || opts.defaultLayout, 'layout');
       }
 
-      if (opts.paths.partials !== undefined) {
+      if (opts.paths.partials) {
         options = Object.assign(options, {
           partials: await loadFiles(opts.paths.partials, 'partial')
         });
