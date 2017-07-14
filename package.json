@@ -42,7 +42,6 @@
   },
   "homepage": "https://github.com/ConnorWiseman/koa-hbs-renderer#readme",
   "dependencies": {
-    "bluebird": "^3.5.0",
     "handlebars": "^4.0.10"
   },
   "devDependencies": {

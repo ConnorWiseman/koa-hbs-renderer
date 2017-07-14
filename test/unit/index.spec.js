@@ -7,7 +7,6 @@
 const chai           = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const path           = require('path');
-const Promise        = require('bluebird');
 const proxyquire     = require('proxyquire').noPreserveCache();
 const should         = chai.should();
 const sinon          = require('sinon');
@@ -226,28 +225,6 @@ describe('createRendererMiddleware', function() {
       })(ctx, async function() {
         await ctx.render(TEMPLATE_NAME);
       }).should.be.fulfilled.notify(done);
-    });
-
-    it('should load partials if `options.paths.partials` is defined', function(done) {
-      renderer({
-        paths: {
-          views:    TEMPLATE_DIRECTORY,
-          partials: TEMPLATE_DIRECTORY
-        }
-      })(ctx, async function() {
-        await ctx.render(TEMPLATE_NAME);
-      }).should.be.fulfilled.notify(done);
-    });
-
-    it('should reject loading partials on `stream` error', function(done) {
-      renderer({
-        paths: {
-          views:    TEMPLATE_DIRECTORY,
-          partials: 'bad'
-        }
-      })(ctx, async function() {
-        await ctx.render(TEMPLATE_NAME);
-      }).should.be.rejected.notify(done);
     });
 
     it('should set ctx.type to `text/html; charset=utf-8`', function(done) {
