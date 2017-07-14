@@ -117,6 +117,18 @@ describe('createRendererMiddleware', function() {
     }).should.throw(ReferenceError);
   });
 
+  it('should throw error if readdir fails', function() {
+    (function() {
+      renderer({
+        paths: {
+          views:   TEMPLATE_DIRECTORY,
+          helpers: HELPER_DIRECTORY,
+          partials: '../bad'
+        }
+      });
+    }).should.throw(Error);
+  });
+
   it('should create a new Handlebars environment', function() {
     sinon.spy(Handlebars, 'create');
 
@@ -132,6 +144,13 @@ describe('createRendererMiddleware', function() {
     renderer({
       paths: { views: TEMPLATE_DIRECTORY },
       extension: 'hbs'
+    });
+  });
+
+  it('should check for custom extension but not find any files', function() {
+    renderer({
+      paths: { views: TEMPLATE_DIRECTORY },
+      extension: 'html'
     });
   });
 

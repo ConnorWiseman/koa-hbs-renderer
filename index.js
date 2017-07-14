@@ -39,7 +39,7 @@ module.exports = function(options) {
     if (opts.paths.partials) {
       fs.readdir(opts.paths.partials, (err, partialList) => {
         if (err) {
-          throw err;
+          throw new Error(err);
         }
 
         partialList.forEach((currPartial) => {
