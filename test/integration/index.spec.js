@@ -28,7 +28,7 @@ describe('Renderer', function() {
   var app, request;
 
   before(function(done) {
-    app = new Koa;
+    app = new Koa();
 
     app.use(renderer({
       paths: {
@@ -60,7 +60,7 @@ describe('Renderer', function() {
   });
 
   it('should render the specified template from the cache', function(done) {
-    request.get('/').expect(200).then(function(result) {
+    request.get('/').expect(200).then(function() {
       return request.get('/').expect(200);
     }).then(function(result) {
       result.text.replace(/(?:^(^|>))\s+|\s+(?:(?=<|$))/g,'').should.equal(TEMPLATE_STRING);

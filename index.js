@@ -1,27 +1,23 @@
 /**
  * @file
  */
-'use strict';
 
-
-const fs         = require('fs');
+const fs = require('fs');
 const Handlebars = require('handlebars');
-const path       = require('path');
-const Promise    = require('bluebird');
-
+const path = require('path');
 
 const emptyLayout = Handlebars.compile('{{{body}}}');
 
 
 /**
- * @param  {Object} [options]
- * @return {AsyncFunction}
+ * @param  {Object} [options] the options sent into our module
+ * @return {AsyncFunction} returns the async next function
  */
-module.exports = function createRendererMiddleware(options) {
+module.exports = function(options) {
   let opts = Object.assign({
     defaultLayout: 'default',
-    expires:       60,
-    extension:     '.hbs',
+    expires: 60,
+    extension: '.hbs'
   }, options);
 
   if (!opts.paths) {
@@ -33,39 +29,59 @@ module.exports = function createRendererMiddleware(options) {
   opts.extension = `.${opts.extension.replace(/[^a-z-]/, '')}`;
 
   let cache = {
-    layout:  {},
+    layout: {},
     partial: {},
-    view:    {}
+    view: {}
   };
-
   let hbs = Handlebars.create();
 
-  if (opts.paths.helpers) {
-    let helpers = fs.readdirSync(opts.paths.helpers);
+  const loadPartials = function() {
+    if (opts.paths.partials) {
+      fs.readdir(opts.paths.partials, (err, partialList) => {
+        if (err) {
+          throw new Error(err);
+        }
 
-    for (let helper of helpers) {
-      const helperPath    = path.join(opts.paths.helpers, helper);
-      const { name, ext } = path.parse(helper);
+        partialList.forEach((currPartial) => {
+          const { name, ext } = path.parse(currPartial);
 
-      if (ext === '.js') {
-        hbs.registerHelper(name, require(helperPath));
-      }
+          if (ext === opts.extension) {
+            hbs.registerPartial(name, fs.readFileSync(path.join(opts.paths.partials, currPartial), 'utf-8'));
+          }
+        });
+      });
     }
-  }
+  };
 
+  const loadHelpers = function() {
+    if (opts.paths.helpers) {
+      fs.readdirSync(opts.paths.helpers).forEach(currHelper => {
+        const helperPath = path.join(opts.paths.helpers, currHelper);
+        const { name, ext } = path.parse(currHelper);
+
+        if (ext === '.js') {
+          hbs.registerHelper(name, require(helperPath));
+        }
+      });
+    }
+  };
+
+  loadHelpers();
+  loadPartials();
 
   /**
    * Compiles the specified template with the local Handlebars environment.
-   * @param  {String} type
-   * @param  {String} name
-   * @param  {String} contents
-   * @return {Function}
+   * @param  {String} type the current type of the piece we are working with
+   * @param  {String} name the name of the current template
+   * @param  {String} contents the contents of the current template
+   * @return {Function} returns the render function of the compiled hbs teamplate
    * @private
    */
-  function compileTemplate(type, name, contents) {
+  const compileTemplate = function(type, name, contents) {
     cache[type][name] = hbs.compile(contents);
-    cache[type][name]._name   = name;
-    cache[type][name]._cached = Math.floor(Date.now() / 1000);
+    cache[type][name].name = name;
+    cache[type][name].cached = Math.floor(Date.now() / 1000);
+
     return cache[type][name];
   };
 
@@ -74,112 +90,71 @@ module.exports = function createRendererMiddleware(options) {
    * @param  {String} directory The directory to retrieve the file from.
    * @param  {String} filename  The name of the file to retrieve.
    * @param  {String} type      One of either 'layout', 'partial', or 'view'.
-   * @return {Promise}
+   * @return {Function} returns the promise function
    * @private
    */
-  function loadFile(directory, filename, type) {
-    let file = path.join(directory, `${filename}${opts.extension}`),
-        now  = Math.floor(Date.now() / 1000),
-        raw;
+  const loadFile = function(directory, filename, type) {
+    return new Promise((resolve, reject) => {
+      let now = Math.floor(Date.now() / 1000);
+      let file = path.join(directory, `${filename}${opts.extension}`);
 
-    return new Promise(function(resolve, reject) {
       if (cache[type][filename] &&
-          cache[type][filename]._cached + opts.expires > now) {
+          cache[type][filename].cached + opts.expires > now) {
         return resolve(cache[type][filename]);
       }
 
-      raw = '';
+      let raw = '';
 
-      fs.createReadStream(file, { encoding: 'utf-8' }).on('data', chunk => {
+      return fs.createReadStream(file, { encoding: 'utf-8' }).on('data', chunk => {
         raw += chunk;
       }).on('error', error => {
-        reject(error);
+        return reject(error);
       }).on('end', () => {
-        resolve(compileTemplate(type, filename, raw));
+        return resolve(compileTemplate(type, filename, raw));
       });
     });
   };
 
-
   /**
-   * @param  {String} directory The directory to retrieve the files from.
-   * @param  {String} type      One of either 'layout', 'partial', or 'view'.
-   * @return {Promise}
+   * @param  {Function}  view the view template function
+   * @param  {Function}  layout the layout template function
+   * @param  {Object}   context the object containing the data for the view template
+   * @param  {Object}   viewOpts options to apply to the view
+   * @return {String} returns the html string
    * @private
    */
-  function loadFiles(directory, type) {
-    return new Promise(function(resolve, reject) {
-      let files = [];
-
-      fs.readdir(directory, function(error, list) {
-        if (error) {
-          return reject(error);
-        }
-
-        for (let file of list) {
-          const { name, ext } = path.parse(file);
-
-          if (ext === opts.extension) {
-            files.push(loadFile(directory, name, type));
-          }
-        }
-
-        resolve(Promise.all(files));
-      });
-    }).then(function(files) {
-      return files.reduce(function(map, current) {
-        map[current._name] = current;
-        return map;
-      }, {});
-    });
-  };
-
-
-  /**
-   * @param  {Function} view
-   * @param  {Function} layout
-   * @param  {Object}   context
-   * @param  {Object}   options
-   * @return {String}
-   * @private
-   */
-  function renderView(view, layout, context, options) {
+  const renderView = function(view, layout, context) {
     return layout(Object.assign({}, context, {
-      body: view(context, options)
-    }), options);
+      body: view(context)
+    }));
   };
 
 
   /**
-   * @param {Object}   ctx
-   * @param {Function} next
+   * @param {Object}   ctx koa context
+   * @param {Function} next koa next function
+   * @return {Function} returns the next callback
    */
-  return async function rendererMiddleware(ctx, next) {
+  return async (ctx, next) => {
 
 
     /**
-     * @param {String} view
-     * @param {Object} [locals]
+     * @param {String} view the string for the view template
+     * @param {Object} [locals] the template context
+     * @return {Undefined} does not return anything
      * @public
      */
-    ctx.render = async function render(view, locals) {
-      let context = Object.assign({}, ctx.state, locals),
-          options = {},
-          viewTemplate   = await loadFile(opts.paths.views, view, 'view'),
-          layoutTemplate = emptyLayout;
+    ctx.render = async function(view, locals) {
+      let context = Object.assign({}, ctx.state, locals);
+      let viewTemplate = await loadFile(opts.paths.views, view, 'view');
+      let layoutTemplate = emptyLayout;
 
       if (opts.paths.layouts) {
         layoutTemplate = await loadFile(opts.paths.layouts, context.layout || opts.defaultLayout, 'layout');
       }
 
-      if (opts.paths.partials) {
-        options = Object.assign(options, {
-          partials: await loadFiles(opts.paths.partials, 'partial')
-        });
-      }
-
       ctx.type = 'text/html; charset=utf-8';
-      ctx.body = renderView(viewTemplate, layoutTemplate, context, options);
+      ctx.body = renderView(viewTemplate, layoutTemplate, context);
     };
 
     await next();
