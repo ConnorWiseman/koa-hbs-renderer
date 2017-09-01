@@ -2,29 +2,6 @@
   "name": "koa-hbs-renderer",
   "version": "0.3.0",
   "description": "A Handlebars template renderer for Koa2.",
-  "main": "index.js",
-  "files": [
-    "index.js",
-    "LICENSE",
-    "README.md"
-  ],
-  "scripts": {
-    "test": "cross-env NODE_ENV=test nyc mocha ./test/unit ./test/integration",
-    "test:integration": "cross-env NODE_ENV=test nyc mocha ./test/integration",
-    "test:unit": "cross-env NODE_ENV=test nyc mocha ./test/unit",
-    "report-coverage": "codecov"
-  },
-  "engines": {
-    "node": ">=7.8.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ConnorWiseman/koa-hbs-renderer.git"
-  },
-  "keywords": [
-    "koa2",
-    "handlebars"
-  ],
   "author": "Connor Wiseman",
   "contributors": [
     {
@@ -36,26 +13,47 @@
       "url": "https://github.com/ConnorWiseman"
     }
   ],
-  "license": "MIT",
+  "homepage": "https://github.com/ConnorWiseman/koa-hbs-renderer#readme",
+  "keywords": [
+    "koa2",
+    "handlebars"
+  ],
+  "files": [
+    "lib/",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ConnorWiseman/koa-hbs-renderer.git"
+  },
   "bugs": {
     "url": "https://github.com/ConnorWiseman/koa-hbs-renderer/issues"
   },
-  "homepage": "https://github.com/ConnorWiseman/koa-hbs-renderer#readme",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "coverage": "codecov",
+    "lint": "eslint ./lib",
+    "test": "cross-env NODE_ENV=test nyc mocha ./test/unit ./test/integration"
+  },
+  "engines": {
+    "node": ">=7.6.0"
+  },
   "dependencies": {
     "handlebars": "^4.0.10"
   },
   "devDependencies": {
-    "chai": "^4.1.1",
+    "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^2.3.0",
-    "cross-env": "^5.0.4",
+    "cross-env": "^5.0.5",
+    "eslint": "^4.5.0",
     "koa": "^2.3.0",
     "mocha": "^3.5.0",
     "nyc": "^11.1.0",
-    "proxyquire": "^1.8.0",
-    "sinon": "^2.4.1",
-    "sinon-chai": "^2.12.0",
-    "stream": "0.0.2",
+    "sinon": "^3.2.1",
+    "sinon-chai": "^2.13.0",
     "supertest": "^3.0.0"
   }
 }

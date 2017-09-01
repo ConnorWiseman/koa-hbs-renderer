@@ -18,10 +18,10 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 
-const TEMPLATE_STRING = `<!DOCTYPE html><html lang="en-US"><head><title>Title!</title><meta charset="utf-8" /></head><body><p>This is a template. Isn't that useful?</p><p>This is a partial!</p></body></html>`;
+const TEMPLATE_STRING = `DEFAULT: <p>This is a template. Isn't that useful?</p>`;
 
 
-const renderer = require('../../index.js');
+const renderer = require('../../lib/index.js');
 
 
 describe('Renderer', function() {
@@ -32,10 +32,10 @@ describe('Renderer', function() {
 
     app.use(renderer({
       paths: {
-        views:    path.join(__dirname, '../views'),
-        partials: path.join(__dirname, '../views/partials'),
-        layouts:  path.join(__dirname, '../views/layouts'),
-        helpers:  path.join(__dirname, '../helpers')
+        views:    path.join(__dirname, '../files/views'),
+        partials: path.join(__dirname, '../files/partials'),
+        layouts:  path.join(__dirname, '../files/layouts'),
+        helpers:  path.join(__dirname, '../files/helpers')
       }
     }));
 
@@ -55,7 +55,7 @@ describe('Renderer', function() {
 
   it('should render the specified template', function(done) {
     request.get('/').expect(200).then(function(result) {
-      result.text.replace(/(?:^(^|>))\s+|\s+(?:(?=<|$))/g,'').should.equal(TEMPLATE_STRING);
+      result.text.should.equal(TEMPLATE_STRING);
     }).should.be.fulfilled.notify(done);
   });
 
@@ -63,7 +63,7 @@ describe('Renderer', function() {
     request.get('/').expect(200).then(function() {
       return request.get('/').expect(200);
     }).then(function(result) {
-      result.text.replace(/(?:^(^|>))\s+|\s+(?:(?=<|$))/g,'').should.equal(TEMPLATE_STRING);
+      result.text.should.equal(TEMPLATE_STRING);
     }).should.be.fulfilled.notify(done);
   });
 });

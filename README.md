@@ -1,6 +1,7 @@
 # koa-hbs-renderer
 
-[![npm](https://img.shields.io/npm/v/koa-hbs-renderer.svg?style=flat-square)](https://www.npmjs.com/package/koa-hbs-renderer) [![Build Status](https://img.shields.io/travis/ConnorWiseman/koa-hbs-renderer/master.svg?style=flat-square)](https://travis-ci.org/ConnorWiseman/koa-hbs-renderer) [![Coverage](https://img.shields.io/codecov/c/github/ConnorWiseman/koa-hbs-renderer.svg?style=flat-square)](https://codecov.io/gh/ConnorWiseman/koa-hbs-renderer)
+[![npm](https://img.shields.io/npm/v/koa-hbs-renderer.svg?style=flat-square)](https://www.npmjs.com/package/koa-hbs-renderer)
+![Node.js](https://img.shields.io/badge/node.js-%3E=_7.6.0-blue.svg?style=flat-square) [![Build Status](https://img.shields.io/travis/ConnorWiseman/koa-hbs-renderer/master.svg?style=flat-square)](https://travis-ci.org/ConnorWiseman/koa-hbs-renderer) [![Coverage](https://img.shields.io/codecov/c/github/ConnorWiseman/koa-hbs-renderer.svg?style=flat-square)](https://codecov.io/gh/ConnorWiseman/koa-hbs-renderer)
 [![Dependencies Status](https://david-dm.org/ConnorWiseman/koa-hbs-renderer/status.svg?style=flat-square)](https://david-dm.org/ConnorWiseman/koa-hbs-renderer)
 [![devDependencies Status](https://david-dm.org/ConnorWiseman/koa-hbs-renderer/dev-status.svg?style=flat-square)](https://david-dm.org/ConnorWiseman/koa-hbs-renderer?type=dev)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/ConnorWiseman/koa-hbs-renderer/blob/master/LICENSE)
@@ -47,29 +48,40 @@ app.listen(3000);
 ## Options
 ```javascript
 let options = {
+  cacheExpires:  60,
+  contentTag:    'content',
   defaultLayout: 'default',
-  expires:       60,
+  environment:   'development',
   extension:     '.hbs',
+  hbs:           Handlebars.create(),
   paths: {
     views:    path.join(__dirname, 'views'),
-    partials: path.join(__dirname, 'partials'),
     layouts:  path.join(__dirname, 'layouts'),
+    partials: path.join(__dirname, 'partials'),
     helpers:  path.join(__dirname, 'helpers')
   }
-}
+};
 
 app.use(renderer(options));
 ```
 
+### cacheExpires
+The length of time, in seconds, to keep compiled Handlebars templates in the in-memory cache before recompilation. Defaults to `60`.
+
+### contentTag
+The name of the block used by layouts to render views. Defaults to `content`, meaning views will be rendered onto layouts where `{{{content}}}` appears.
 
 ### defaultLayout
 The name of the layout to use by default if `paths.layouts` is defined. Defaults to `default`.
 
-### expires
-The length of time, in seconds, to keep compiled Handlebars templates in the in-memory cache. Defaults to `60`.
+### environment
+The current Node.js environment, used to determine whether or not to invalidate the contents of cached templates. If set to `development`, cached templates will expire after the amount of time specified by [`cacheExpires`](#cacheexpires) above. Defaults to `process.env.NODE_ENV`.
 
 ### extension
 The file extension used by template files. Defaults to `.hbs`.
+
+### hbs
+A Handlebars environment to use. If one is not provided, one will be created via [`Handlebars.create`](http://handlebarsjs.com/reference.html#base-create) when the middleware function is called.
 
 ### paths
 An object literal of specified file paths. _Required._
