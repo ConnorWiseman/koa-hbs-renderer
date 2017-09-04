@@ -145,5 +145,17 @@ describe('createRenderer', function() {
         ctx.body.should.equal('DEFAULT: <p>This is a template. Isn\'t that partial?</p>');
       }).should.be.fulfilled.notify(done);
     });
+
+
+    it('should render partials in the specified layout', function(done) {
+      renderer(options)(ctx, async function() {
+        await ctx.render('template', {
+          adjective: 'useful',
+          layout: 'partial'
+        });
+
+        ctx.body.should.equal('PARTIAL: <p>This is a template. Isn\'t that useful?</p> partial');
+      }).should.be.fulfilled.notify(done);
+    });
   });
 });
