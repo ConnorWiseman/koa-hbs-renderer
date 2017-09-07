@@ -6,7 +6,7 @@
 [![devDependencies Status](https://david-dm.org/ConnorWiseman/koa-hbs-renderer/dev-status.svg?style=flat-square)](https://david-dm.org/ConnorWiseman/koa-hbs-renderer?type=dev)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/ConnorWiseman/koa-hbs-renderer/blob/master/LICENSE)
 
-A Handlebars template renderer for Koa2.
+> A Handlebars template renderer for [Koa](https://github.com/koajs/koa) applications.
 
 
 ## Installation
@@ -47,6 +47,8 @@ app.listen(3000);
 
 ## Options
 ```javascript
+const Handlebars = require('handlebars');
+
 let options = {
   cacheExpires:  60,
   contentTag:    'content',
