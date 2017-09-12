@@ -61,7 +61,8 @@ let options = {
     layouts:  path.join(__dirname, 'layouts'),
     partials: path.join(__dirname, 'partials'),
     helpers:  path.join(__dirname, 'helpers')
-  }
+  },
+  Promise:      Promise
 };
 
 app.use(renderer(options));
@@ -99,3 +100,6 @@ The path to a directory of layout templates. _Optional._
 
 #### helpers
 The path to a directory of helper functions contained in JavaScript files. If specified, all functions in the helpers directory will be loaded and made available to the Handlebars environment for rendering. _Optional._
+
+### Promise
+The constructor function to create internal Promises from. Defaults to the built-in `Promise` object; has been tested to work with [`bluebird`](https://github.com/petkaantonov/bluebird/).

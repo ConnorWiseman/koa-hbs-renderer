@@ -3,6 +3,7 @@
  */
 
 
+const bluebird       = require('bluebird');
 const chai           = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const Handlebars     = require('handlebars');
@@ -27,7 +28,8 @@ describe('templateManager', function() {
       environment:  'development',
       cacheExpires: 60,
       extension:    '.hbs',
-      hbs:          Handlebars.create()
+      hbs:          Handlebars.create(),
+      Promise:      Promise
     };
   });
 
@@ -78,6 +80,17 @@ describe('templateManager', function() {
       manager.compileTemplate(view, 'view').should.be.a('Promise');
     });
 
+    it('should use Promise object specified in options', function(done) {
+      options.Promise = bluebird;
+      let p = manager.compileTemplate(view, 'view');
+      p.constructor.name.should.equal('Promise');
+      p.then(function(fn) {
+        fn.should.be.a('function');
+        fn.name.should.equal('ret');
+        fn.should.have.any.keys([ '_setup', '_child' ]);
+      }).should.be.fulfilled.notify(done);
+    });
+
     it('should reject if template is inaccessible', function(done) {
       manager.compileTemplate('bad template', 'view').should.be.rejected.notify(done);
     });
@@ -116,6 +129,16 @@ describe('templateManager', function() {
 
     it('should return a Promise', function() {
       manager.compileTemplates(views, 'view').should.be.a('Promise');
+    });
+
+    it('should use Promise object specified in options', function(done) {
+      options.Promise = bluebird;
+      let p = manager.compileTemplates(partials, 'partial');
+      p.constructor.name.should.equal('Promise');
+      p.then(function(obj) {
+        obj.should.be.an('object');
+        obj.should.have.keys([ 'partial' ]);
+      }).should.be.fulfilled.notify(done);
     });
 
     it('should resolve to an object map of compiled Handlebars template functions', function(done) {
