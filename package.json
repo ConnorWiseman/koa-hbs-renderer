@@ -48,17 +48,17 @@
     "handlebars": "^4.0.10"
   },
   "devDependencies": {
-    "bluebird": "^3.5.0",
+    "bluebird": "^3.5.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^2.3.0",
     "cross-env": "^5.0.5",
-    "eslint": "^4.6.1",
+    "eslint": "^4.8.0",
     "koa": "^2.3.0",
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
-    "sinon": "^3.2.1",
-    "sinon-chai": "^2.13.0",
+    "sinon": "^4.0.1",
+    "sinon-chai": "^2.14.0",
     "supertest": "^3.0.0"
   }
 }
