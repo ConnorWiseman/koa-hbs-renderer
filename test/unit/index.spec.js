@@ -31,6 +31,7 @@ describe('createRenderer', function() {
       environment:   'development',
       extension:     '.hbs',
       hbs:           Handlebars.create(),
+      helperNamespaces: false,
       paths: {
         views:    path.join(__dirname, '../files/views'),
         layouts:  path.join(__dirname, '../files/layouts'),
@@ -61,7 +62,7 @@ describe('createRenderer', function() {
     sinon.stub(options.hbs, 'registerHelper');
     options.paths.helpers = path.join(__dirname, '../files/helpers');
     renderer(options);
-    options.hbs.registerHelper.should.have.been.calledOnce;
+    options.hbs.registerHelper.should.have.been.calledThrice;
   });
 
   it('should return an AsyncFunction', function() {
