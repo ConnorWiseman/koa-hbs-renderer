@@ -143,7 +143,7 @@ describe('createRenderer', function() {
       renderer(options)(ctx, async function() {
         await ctx.render('partial');
 
-        ctx.body.should.equal('DEFAULT: <p>This is a template. Isn\'t that partial?</p>');
+        ctx.body.should.equal('DEFAULT: <p>This is a template. Isn\'t that partial?</p>\n\n<p>Perhaps another would be welcome, too.</p>');
       }).should.be.fulfilled.notify(done);
     });
 

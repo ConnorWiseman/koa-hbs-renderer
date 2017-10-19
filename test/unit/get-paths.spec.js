@@ -36,9 +36,10 @@ describe('getPaths', function() {
     let p = getPaths(helpers, '.js', options);
     p.constructor.name.should.equal('Promise');
     p.then(function(paths) {
-      paths.length.should.equal(2);
-      paths[0].should.equal(path.join(helpers, 'double.js'));
-      paths[1].should.equal(path.join(helpers, 'ns.js'));
+      paths.length.should.equal(3);
+      paths.should.include(path.join(helpers, 'double.js'));
+      paths.should.include(path.join(helpers, 'subdirectory', 'double.js'));
+      paths.should.include(path.join(helpers, 'ns.js'));
     }).should.be.fulfilled.notify(done);
   });
 
@@ -54,9 +55,10 @@ describe('getPaths', function() {
 
   it('should resolve to an array of correct file paths', function(done) {
     getPaths(helpers, '.js', options).then(function(paths) {
-      paths.length.should.equal(2);
-      paths[0].should.equal(path.join(helpers, 'double.js'));
-      paths[1].should.equal(path.join(helpers, 'ns.js'));
+      paths.length.should.equal(3);
+      paths.should.include(path.join(helpers, 'double.js'));
+      paths.should.include(path.join(helpers, 'subdirectory', 'double.js'));
+      paths.should.include(path.join(helpers, 'ns.js'));
     }).should.be.fulfilled.notify(done);
   });
 });

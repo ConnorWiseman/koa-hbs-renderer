@@ -77,12 +77,12 @@ describe('templateManager', function() {
     });
 
     it('should return a Promise', function() {
-      manager.compileTemplate(view, 'view').should.be.a('Promise');
+      manager.compileTemplate(views, view, 'view').should.be.a('Promise');
     });
 
     it('should use Promise object specified in options', function(done) {
       options.Promise = bluebird;
-      let p = manager.compileTemplate(view, 'view');
+      let p = manager.compileTemplate(views, view, 'view');
       p.constructor.name.should.equal('Promise');
       p.then(function(fn) {
         fn.should.be.a('function');
@@ -92,11 +92,11 @@ describe('templateManager', function() {
     });
 
     it('should reject if template is inaccessible', function(done) {
-      manager.compileTemplate('bad template', 'view').should.be.rejected.notify(done);
+      manager.compileTemplate(views, 'bad template', 'view').should.be.rejected.notify(done);
     });
 
     it('should resolve to a compiled Handlebars template function', function(done) {
-      manager.compileTemplate(view, 'view').then(function(fn) {
+      manager.compileTemplate(views, view, 'view').then(function(fn) {
         fn.should.be.a('function');
         fn.name.should.equal('ret');
         fn.should.have.any.keys([ '_setup', '_child' ]);
@@ -104,14 +104,14 @@ describe('templateManager', function() {
     });
 
     it('resolved function should have `_name` and `_cached` properties', function(done) {
-      manager.compileTemplate(view, 'view').then(function(fn) {
+      manager.compileTemplate(views, view, 'view').then(function(fn) {
         fn.should.have.any.keys([ '_name', '_cached' ]);
       }).should.be.fulfilled.notify(done);
     });
 
     it('should return from the cache', function(done) {
-      manager.compileTemplate(view, 'view').then(function() {
-        return manager.compileTemplate(view, 'view');
+      manager.compileTemplate(views, view, 'view').then(function() {
+        return manager.compileTemplate(views, view, 'view');
       }).should.be.fulfilled.notify(done);
     });
   });
@@ -137,14 +137,14 @@ describe('templateManager', function() {
       p.constructor.name.should.equal('Promise');
       p.then(function(obj) {
         obj.should.be.an('object');
-        obj.should.have.keys([ 'partial' ]);
+        obj.should.have.all.keys([ 'partial', 'subdirectory/another' ]);
       }).should.be.fulfilled.notify(done);
     });
 
     it('should resolve to an object map of compiled Handlebars template functions', function(done) {
       manager.compileTemplates(partials, 'partial').then(function(obj) {
         obj.should.be.an('object');
-        obj.should.have.keys([ 'partial' ]);
+        obj.should.have.all.keys([ 'partial', 'subdirectory/another' ]);
       }).should.be.fulfilled.notify(done);
     });
   });
