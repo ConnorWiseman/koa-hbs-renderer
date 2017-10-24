@@ -59,6 +59,7 @@
     "koa": "^2.3.0",
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
+    "proxyquire": "^1.8.0",
     "sinon": "^4.0.1",
     "sinon-chai": "^2.14.0",
     "supertest": "^3.0.0"
