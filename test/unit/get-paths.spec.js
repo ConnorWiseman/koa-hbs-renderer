@@ -6,12 +6,19 @@
 const bluebird       = require('bluebird');
 const chai           = require('chai');
 const chaiAsPromised = require('chai-as-promised');
+const fs             = require('fs');
 const path           = require('path');
-chai.should();
+const proxyquire     = require('proxyquire').noPreserveCache();
+const should         = chai.should();
+const sinon          = require('sinon');
+const sinonChai      = require('sinon-chai');
+
+
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 
-const getPaths = require('../../lib/get-paths.js');
+const getPaths = proxyquire('../../lib/get-paths.js', { fs });
 
 
 const helpers = path.join(__dirname, '../files/helpers');
@@ -20,6 +27,46 @@ const helpers = path.join(__dirname, '../files/helpers');
 const options = {
   Promise: Promise
 };
+
+
+describe('traverseDirectory', function() {
+  it('should execute the callback immediately if there are no files in the target directory', function(done) {
+    sinon.stub(fs, 'readdir').callsArgWith(1, null, []);
+    getPaths(helpers, '.js', options).then(function(paths) {
+      paths.length.should.equal(0);
+      fs.readdir.restore();
+    }).should.be.fulfilled.notify(done);
+  });
+
+  it('should return errors in `fs.readdir`', function(done) {
+    sinon.stub(fs, 'readdir').onCall(0).callsArgWith(1, true, null);
+    getPaths(helpers, '.js', options).should.be.rejected.notify(function() {
+      fs.readdir.restore();
+      done();
+    });
+  });
+
+  it('should return errors in `fs.stat`', function(done) {
+    sinon.stub(fs, 'stat').callsArgWith(1, true, null);
+    getPaths(helpers, '.js', options).should.be.rejected.notify(function() {
+      fs.stat.restore();
+      done();
+    });
+  });
+
+  it('should return errors in recursive `fs.readdir`', function(done) {
+    sinon.stub(fs, 'readdir').onCall(0).callsArgWith(1, null, [ 'test' ])
+                             .onCall(1).callsArgWith(1, true, null);
+    sinon.stub(fs, 'stat').callsArgWith(1, null, {
+      isDirectory: () => true
+    });
+    getPaths(helpers, '.js', options).should.be.rejected.notify(function() {
+      fs.stat.restore();
+      fs.readdir.restore();
+      done();
+    });
+  });
+});
 
 
 describe('getPaths', function() {
