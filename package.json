@@ -54,13 +54,13 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.0.0",
-    "cross-env": "^5.1.0",
-    "eslint": "^4.9.0",
+    "cross-env": "^5.1.1",
+    "eslint": "^4.10.0",
     "koa": "^2.3.0",
-    "mocha": "^3.5.3",
+    "mocha": "^4.0.1",
     "nyc": "^11.2.1",
     "proxyquire": "^1.8.0",
-    "sinon": "^4.0.1",
+    "sinon": "^4.0.2",
     "sinon-chai": "^2.14.0",
     "supertest": "^3.0.0"
   }
